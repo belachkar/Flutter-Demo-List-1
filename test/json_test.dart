@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:boring_flutter1/json_parsing.dart';
+// import 'package:boring_flutter1/json_parsing.dart';
+import 'package:boring_flutter1/src/article.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,10 +20,10 @@ void main() {
     const jsonString =
         '{"by":"pg","descendants":54,"id":126809,"kids":[126822,126823,126917,126993,126824,126934,127411,126888,127681,126818,126816,126854,127095,126861,127313,127299,126859,126852,126882,126832,127072,127217,126889,126875,127535],"parts":[126810,126811,126812],"score":47,"time":1204403652,"title":"Poll: What would happen if News.YC had explicit support for polls?","type":"poll"}';
 
-    expect(parseItem(jsonString).by, 'pg');
+    expect(parseArticle(jsonString).by, 'pg');
   });
 
-  test("Parse item.json from network", () async {
+  test("Parse item.json from hacker-news.firebaseio.com", () async {
     const url = 'https://hacker-news.firebaseio.com/v0';
     const urlTS = '$url/topstories.json';
     const urlItems = '$url/item';
@@ -34,7 +35,7 @@ void main() {
         final urlItem = '$urlItems/${idList.first}.json';
         final storyRes = await http.get(urlItem);
         if (storyRes.statusCode == 200) {
-          expect(parseItem(storyRes.body).by, isNotNull);
+          expect(parseArticle(storyRes.body).by, isNotNull);
         } else {
           throw 'Network Error: response code: ${storyRes.statusCode}';
         }
