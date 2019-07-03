@@ -19,7 +19,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   url_launcher: ^5.0.3
+  built_value: ^6.6.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -28,6 +30,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # Dependencies for built_value
+  build_runner: ^1.0.0
+  built_value_generator: ^6.6.0
 
 
 # For information on the generic Dart part of this file, see the
