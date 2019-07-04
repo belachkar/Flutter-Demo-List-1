@@ -1,14 +1,20 @@
-// import 'package:boring_flutter1/src/article.dart';
-import 'dart:convert';
-
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
+
+import 'src/hn_bloc.dart';
 import 'src/article.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  final hnBloc = HackerNewsBloc();
+  runApp(MyApp(bloc: hnBloc));
+}
 
 class MyApp extends StatelessWidget {
+  final HackerNewsBloc bloc;
+
+  MyApp({Key key, this.bloc}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,13 +23,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Home Page', bloc: bloc),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  final HackerNewsBloc bloc;
+
+  MyHomePage({Key key, this.title, this.bloc}) : super(key: key);
   final String title;
 
   @override
@@ -31,39 +39,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<int> _ids = [20348897, 20348365, 20343728, 20348531];
-
-  Future<Article> _getArticle(int id) async {
-    final articleUrl = 'https://hacker-news.firebaseio.com/v0/item/$id.json';
-    final res = await http.get(articleUrl);
-    if (res.statusCode == 200) {
-      return parseArticle(res.body);
-    } else {
-      throw 'Unable to connect, StatusCode: ${res.statusCode}';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView(
-        // children: _ids.map(_buildItem).toList(),
-        children: _ids
-            .map((id) => FutureBuilder<Article>(
-                  future: _getArticle(id),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<Article> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return _buildItem(snapshot.data);
-                    } else {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                  },
-                ))
-            .toList(),
+      body: StreamBuilder<UnmodifiableListView<Article>>(
+        initialData: UnmodifiableListView<Article>([]),
+        stream: widget.bloc.articles,
+        builder: (context, snapshot) => ListView(
+          children: snapshot.data.map(_buildItem).toList(),
+        ),
       ),
     );
   }
@@ -79,19 +66,15 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         children: <Widget>[
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               Text(
                 article.type,
                 style: TextStyle(fontSize: 16.0),
               ),
-              MaterialButton(
-                child: Text('OPEN'),
-                color: Colors.green,
-                onPressed: () {},
-              ),
               IconButton(
-                icon: Icon(Icons.flag),
-                color: Colors.green,
+                icon: Icon(Icons.launch),
+                color: Colors.green[200],
                 onPressed: () async {
                   if (await canLaunch(url)) {
                     await launch(url);
@@ -101,7 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ],
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
           ),
         ],
       ),

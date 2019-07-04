@@ -15,7 +15,7 @@ abstract class Article implements Built<Article, ArticleBuilder> {
   @nullable
   bool get deleted;
 
-  @nullable
+  /// The type of articles. One of "job", "story", "comment", "poll", or "pollopt".
   String get type;
 
   @nullable
@@ -72,6 +72,5 @@ Article parseArticle(String jsonString) {
 
   /// Using "Built_value" package for serialization.
   final parsed = jsonDecode(jsonString);
-  Article article = serializers.deserializeWith(Article.serializer, parsed);
-  return article;
+  return serializers.deserializeWith(Article.serializer, parsed);
 }
