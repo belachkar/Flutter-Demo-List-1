@@ -19,10 +19,12 @@ class HackerNewsBloc {
   final _storiesTypeController = StreamController<StoriesType>();
   Sink<StoriesType> get storiesType => _storiesTypeController.sink;
 
+  final _isLoadingSubject = BehaviorSubject<bool>.seeded(false);
+  Stream<bool> get isLoading => _isLoadingSubject.stream;
+
   HackerNewsBloc() {
     _getArticlesAndUpdate(List<int> ids) {
       _updateArticles(ids).then((_) {
-        print(_articles);
         _articlesSubject.add(UnmodifiableListView(_articles));
       });
     }
@@ -44,7 +46,11 @@ class HackerNewsBloc {
   }
 
   Future<Null> _updateArticles(List<int> articleIds) async {
+    _isLoadingSubject.add(true);
+    print('isLoadingstate: ${_isLoadingSubject.value}');
     _articles = await Future.wait(articleIds.map((id) => _getArticle(id)));
+    _isLoadingSubject.add(false);
+    print('isLoadingstate: ${_isLoadingSubject.value}');
   }
 
   Future<Article> _getArticle(int id) async {

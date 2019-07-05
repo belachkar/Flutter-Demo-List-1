@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:boring_flutter1/main.dart';
+import '../lib/main.dart';
 
 void main() {
   testWidgets('Clicking tile opens it', (WidgetTester tester) async {

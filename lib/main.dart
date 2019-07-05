@@ -1,9 +1,10 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'src/hn_bloc.dart';
-import 'src/article.dart';
+import './src/hn_bloc.dart';
+import './src/article.dart';
 
 void main() {
   final hnBloc = HackerNewsBloc();
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.deepOrange,
       ),
       home: MyHomePage(title: 'Flutter Hacker News', bloc: bloc),
     );
@@ -46,6 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        // leading: CircularProgressIndicator(backgroundColor: Colors.white,),
+        leading: LoadingInfo(widget.bloc.isLoading),
       ),
       body: StreamBuilder<UnmodifiableListView<Article>>(
         initialData: UnmodifiableListView<Article>([]),
@@ -56,9 +59,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         elevation: 10.0,
-        type: BottomNavigationBarType.shifting,
-        selectedItemColor: Colors.teal,
-        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.grey[200],
+        // type: BottomNavigationBarType.fixed,
+        // selectedItemColor: Colors.teal,
+        // unselectedItemColor: Colors.grey,
         currentIndex: _cBottomNavIndex,
         items: [
           BottomNavigationBarItem(
@@ -116,6 +120,49 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class LoadingInfo extends StatefulWidget {
+  final Stream<bool> _isLoading;
+  LoadingInfo(this._isLoading);
+
+  @override
+  _LoadingInfoState createState() => _LoadingInfoState();
+}
+
+class _LoadingInfoState extends State<LoadingInfo>
+    with TickerProviderStateMixin {
+  AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<bool>(
+      initialData: false,
+      stream: widget._isLoading,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data) {
+          _controller.forward();
+        } else {
+          _controller.reverse();
+        }
+        return FadeTransition(
+          child: Icon(FontAwesomeIcons.hackerNewsSquare),
+          opacity: Tween(begin: 0.3, end: 1.0).animate(CurvedAnimation(
+            parent: _controller,
+            curve: Curves.easeInOutCirc,
+          )),
+        );
+        // return Container();
+      },
     );
   }
 }

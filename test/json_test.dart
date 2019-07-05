@@ -1,12 +1,12 @@
 import 'dart:convert';
-
-// import 'package:boring_flutter1/json_parsing.dart';
-import 'package:boring_flutter1/src/article.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
+import '../lib/src/article.dart';
+
 // Source of the data: https://github.com/HackerNews/API
 void main() {
+
   // From "https://hacker-news.firebaseio.com/v0/topstories.json"
   test("Parse topstories.json", () {
     const jsonString =
